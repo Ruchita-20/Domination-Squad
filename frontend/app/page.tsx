@@ -6,7 +6,6 @@ import {TableDemo} from './table'
 import {Redical} from './redical'
 import {Days} from "./days"
 
-import {Progressp}  from "./progress";
 export default function Home() {
   return (
     <div className="flex flex-col h-screen p-10 gap-2">
