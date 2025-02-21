@@ -1,7 +1,6 @@
 import DayOverlapCard from "./DayOverlapCard"
 import {InputForm} from "./form"
 import {Component} from "./chart"
-import Prediction from "./prediction";
 import {TableDemo} from './table'
 import {Redical} from './redical'
 import {Days} from "./days"
