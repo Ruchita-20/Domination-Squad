@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Pie, PieChart } from "recharts";
-import { db } from "./firebase"; // Import Firebase Firestore
-import { doc, getDoc } from "firebase/firestore";
 import { getDatabase, ref, get } from "firebase/database";
 import {
   Card,
@@ -17,43 +15,47 @@ import {
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
 } from "@/components/ui/chart";
 
-export function Redical() {
+interface RedicalProps {
+  selectedDate: string; // Accept the date as a prop
+}
+
+export function Redical({ selectedDate }: RedicalProps) {
   const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!selectedDate) return;
+
     const fetchData = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
         const database = getDatabase();
-        const dbRef = ref(database, "/");
+        const dbRef = ref(database, `usage/${selectedDate}`);
+
         const snapshot = await get(dbRef);
-  
         if (!snapshot.exists()) {
-          console.error("No data found in Realtime Database.");
-          setError("No data found");
+          console.error(`No data found for ${selectedDate}`);
+          setError(`No data found for ${selectedDate}`);
+          setChartData([]);
           return;
         }
-  
-        const data = snapshot.val() || {}; // Ensure data is always an object
-        console.log("Fetched Data:", data); // Debugging
-  
-        const formattedData = Object.entries(data)
-          .map(([key, value]) => {
-            if (!value || typeof value !== "object" || !("usage" in value)) {
-              console.error(`Invalid data for key: ${key}`, value);
-              return null;
-            }
-            return {
-              appliance: key,
-              usage: value.usage,
-              fill: getRandomColor(),
-            };
-          })
-          .filter(Boolean); // Remove invalid entries
-  
+
+        const usageData = snapshot.val();
+        console.log(`Fetched Data for ${selectedDate}:`, usageData); // Debugging
+
+        const formattedData = Object.entries(usageData).map(([appliance, usage]) => ({
+          appliance,
+          usage: Number(usage), // Ensure numerical data
+          fill: getRandomColor(),
+        }));
+
         setChartData(formattedData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -62,10 +64,10 @@ export function Redical() {
         setLoading(false);
       }
     };
-  
+
     fetchData();
-  }, []);
-  
+  }, [selectedDate]); // Fetch data whenever selectedDate changes
+
   // Function to generate random colors for pie chart
   const getRandomColor = () => {
     return `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
@@ -83,7 +85,7 @@ export function Redical() {
     <Card className="flex flex-col rounded-lg shadow-lg">
       <CardHeader className="items-center pb-0">
         <CardTitle>Appliance Usage</CardTitle>
-        <CardDescription>Monthly Usage Breakdown</CardDescription>
+        <CardDescription>Usage Breakdown for {selectedDate}</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -91,6 +93,7 @@ export function Redical() {
           className="mx-auto aspect-square max-h-[300px]"
         >
           <PieChart>
+            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <Pie data={chartData} dataKey="usage" nameKey="appliance" />
             <ChartLegend
               content={<ChartLegendContent nameKey="appliance" />}
