@@ -27,26 +27,36 @@ export function Redical() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const database = getDatabase(); // Initialize Realtime Database
-        const dbRef = ref(database, "/"); // Root reference
+        const database = getDatabase();
+        const dbRef = ref(database, "/");
         const snapshot = await get(dbRef);
-        
-        if (snapshot.exists()) {
-          const data = snapshot.val(); // Get data as JSON object
   
-          // Format data correctly for PieChart
-          const formattedData = Object.entries(data).map(([key, value]) => ({
-            appliance: key,
-            usage: value.usage, // Extract 'usage' value from object
-            fill: getRandomColor(), // Assign random colors
-          }));
-  
-          setChartData(formattedData);
-        } else {
+        if (!snapshot.exists()) {
+          console.error("No data found in Realtime Database.");
           setError("No data found");
+          return;
         }
+  
+        const data = snapshot.val() || {}; // Ensure data is always an object
+        console.log("Fetched Data:", data); // Debugging
+  
+        const formattedData = Object.entries(data)
+          .map(([key, value]) => {
+            if (!value || typeof value !== "object" || !("usage" in value)) {
+              console.error(`Invalid data for key: ${key}`, value);
+              return null;
+            }
+            return {
+              appliance: key,
+              usage: value.usage,
+              fill: getRandomColor(),
+            };
+          })
+          .filter(Boolean); // Remove invalid entries
+  
+        setChartData(formattedData);
       } catch (error) {
-        console.error("Error fetching Realtime Database data:", error);
+        console.error("Error fetching data:", error);
         setError("Failed to load data");
       } finally {
         setLoading(false);

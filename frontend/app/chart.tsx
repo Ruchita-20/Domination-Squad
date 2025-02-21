@@ -18,7 +18,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function Component() {
-  const [chartData, setChartData] = useState([]);
+  const [chartData, setChartData] = useState<{ month: string; budget: number; predicted: number }[]>([]);
+
   
   useEffect(() => {
     const fetchData = async () => {
