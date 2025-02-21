@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { getDatabase, ref, get } from "firebase/database";
-import { db } from "./firebase"; // Ensure Firebase is initialized
+import { getDatabase, ref, onValue } from "firebase/database";
 import {
   Table,
   TableBody,
@@ -18,35 +17,39 @@ export function TableDemo() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const database = getDatabase(); // Initialize Realtime Database
-        const dbRef = ref(database, "/"); // Root reference
-        const snapshot = await get(dbRef);
+    const database = getDatabase();
+    
+    // Get today's date dynamically in YYYY-MM-DD format
+    const today = new Date().toISOString().split("T")[0];
 
+    const dbRef = ref(database, `usage/${today}`); // Fetch data for today's date
+
+    onValue(
+      dbRef,
+      (snapshot) => {
         if (snapshot.exists()) {
-          console.log("Fetched data:", snapshot.val()); // Debugging
+          console.log("Fetched data:", snapshot.val());
           setApplianceData(snapshot.val()); // Store key-value pairs
+          setError(null); // Clear any previous errors
         } else {
-          setError("No data available");
+          setApplianceData({});
+          setError(`No data available for ${today}`);
         }
-      } catch (error) {
+      },
+      (error) => {
         console.error("Error fetching data:", error);
         setError("Error fetching data");
       }
-    };
-
-    fetchData();
+    );
   }, []);
 
-  const totalUsage = Object.values(applianceData).reduce(
-    (sum, value) => sum + (value.usage || 0), 
-    0
-  );
-  
+  // Calculate total usage
+  const totalUsage = Object.values(applianceData).reduce((sum, value) => sum + value, 0);
 
-  if (error) return <div>{error}</div>;
-  const currentDate = new Date().toLocaleDateString("en-GB", {
+  if (error) return <div className="text-red-500 text-center">{error}</div>;
+
+  // Format date in "DD MMM YYYY" format for display
+  const formattedDate = new Date().toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -57,9 +60,7 @@ export function TableDemo() {
       <Table>
         <TableCaption>
           <div className="flex items-center justify-center">
-            <span className="text-sm text-center">
-              Readings till {currentDate}
-            </span>
+            <span className="text-sm text-center">Readings for {formattedDate}</span>
           </div>
         </TableCaption>
         <TableHeader>
@@ -69,19 +70,17 @@ export function TableDemo() {
           </TableRow>
         </TableHeader>
         <TableBody>
-  {Object.entries(applianceData).map(([key, value]) => (
-    <TableRow key={key}>
-      <TableCell className="font-medium">{key}</TableCell>
-      <TableCell className="text-right">{value.usage}</TableCell>
-    </TableRow>
-  ))}
-</TableBody>
-
-
+          {Object.entries(applianceData).map(([key, value]) => (
+            <TableRow key={key}>
+              <TableCell className="font-medium">{key}</TableCell>
+              <TableCell className="text-right">{value}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
         <TableFooter>
           <TableRow>
             <TableCell>Total</TableCell>
-            <TableCell className="text-right"> {totalUsage}</TableCell>
+            <TableCell className="text-right">{totalUsage}</TableCell>
           </TableRow>
         </TableFooter>
       </Table>
