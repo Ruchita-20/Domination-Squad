@@ -12,28 +12,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export function TableDemo() {
+export function TableDemo({ selectedDate }: { selectedDate: string }) {
   const [applianceData, setApplianceData] = useState<Record<string, number>>({});
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const database = getDatabase();
-    
-    // Get today's date dynamically in YYYY-MM-DD format
-    const today = new Date().toISOString().split("T")[0];
-
-    const dbRef = ref(database, `usage/${today}`); // Fetch data for today's date
+    const dbRef = ref(database, `usage/${selectedDate}`);
 
     onValue(
       dbRef,
       (snapshot) => {
         if (snapshot.exists()) {
-          console.log("Fetched data:", snapshot.val());
-          setApplianceData(snapshot.val()); // Store key-value pairs
-          setError(null); // Clear any previous errors
+          console.log(`Fetched data for ${selectedDate}:`, snapshot.val());
+          setApplianceData(snapshot.val());
+          setError(null);
         } else {
           setApplianceData({});
-          setError(`No data available for ${today}`);
+          setError(`No data available for ${selectedDate}`);
         }
       },
       (error) => {
@@ -41,15 +37,15 @@ export function TableDemo() {
         setError("Error fetching data");
       }
     );
-  }, []);
+  }, [selectedDate]); // Fetch data whenever selectedDate changes
 
   // Calculate total usage
   const totalUsage = Object.values(applianceData).reduce((sum, value) => sum + value, 0);
 
   if (error) return <div className="text-red-500 text-center">{error}</div>;
 
-  // Format date in "DD MMM YYYY" format for display
-  const formattedDate = new Date().toLocaleDateString("en-GB", {
+  // Format date for display
+  const formattedDate = new Date(selectedDate).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",

@@ -36,7 +36,7 @@ export default function Home() {
       </div>
       <div className="flex flex-wrap gap-4 mt-2">
         <div className="w-32 flex-1">
-          <TableDemo />
+          <TableDemo selectedDate={formatDate(selectedDate)}/>
         </div>
         <div className="w-32 flex-1">
           <Component />

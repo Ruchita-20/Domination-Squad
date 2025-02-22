@@ -5,15 +5,16 @@ import firebase_admin
 from firebase_admin import credentials, db
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
+from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)  # Allow requests from Next.js
 
-# Firebase setup (Replace with your Realtime Database credentials)
+# Firebase setup
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://switchxpert-default-rtdb.firebaseio.com/'  # Replace with your database URL
+    'databaseURL': 'https://switchxpert-default-rtdb.firebaseio.com/'
 })
 
 # Load dataset
@@ -31,25 +32,29 @@ model.fit(X_train, y_train)
 # API Endpoint to get bill prediction
 @app.route('/predict', methods=['GET'])
 def predict_bill():
-    # Fetch latest appliance data from Realtime Database
-    ref = db.reference("/")  # Root reference
+    today_date = datetime.today().strftime('%Y-%m-%d')
+    ref = db.reference(f"/usage/{today_date}/")
     data = ref.get()
 
+    print(f"Fetched data for {today_date}: {data}")  # Debugging print
+
     if not data:
-        return jsonify({"error": "No data found"}), 400
+        return jsonify({"error": f"No data found for {today_date}"}), 400
 
     # Prepare input data for prediction
     new_input = pd.DataFrame([{
-        'Fan Usage Time (hours)': 0,
-        'Bulb Usage Time (hours)': data.get('bulb', {}).get('usage', 0),
-        'Bell Usage Time (hours)': data.get('bell', {}).get('usage', 0),
-        'Socket Usage Time (hours)': data.get('socket', {}).get('usage', 0),  # Adjust if socket data is available
+        'Fan Usage Time (hours)': data.get('Fan', 0),
+        'Bulb Usage Time (hours)': data.get('Bulb', 0),
+        'Bell Usage Time (hours)': data.get('Bell', 0),
+        'Socket Usage Time (hours)': data.get('Socket', 0),
     }])
+
+    print("Input data for prediction:", new_input)  # Debugging print
 
     # Predict bill
     predicted_bill = model.predict(new_input)[0]
 
-    return jsonify({"predicted_bill": predicted_bill})
+    return jsonify({"selected_date": today_date, "predicted_bill": predicted_bill})
 
 if __name__ == '__main__':
     app.run(debug=True)
