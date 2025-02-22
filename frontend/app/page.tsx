@@ -71,35 +71,21 @@ export default function Home() {
       </div>
     </div>
   
-    <div className="flex flex-wrap gap-4 mt-2">
-      <div className="w-32 flex-1">
+    <div className="flex gap-4 mt-2">
+
+      <div className="w-2/3 flex flex-col gap-4">
+        <ComparisonGraph selectedDate={formatDate(selectedDate)} />
         <TableDemo selectedDate={formatDate(selectedDate)} />
       </div>
-      <div className="w-32 flex-1">
+      {/* Left Side Component */}
+      <div className="w-[95%]">
         <Component />
       </div>
+
+      {/* Right Side - Stacked Table and ComparisonGraph */}
+      
     </div>
-
-    <div className="flex flex-wrap gap-4 mt-2">
-  <div className="w-32 flex-1">
-    <ComparisonGraph selectedDate={formatDate(selectedDate)} />
-  </div>
-  <div className="w-32 flex-1">
-    <Component />
-  </div>
-</div>
-
   
-    <div className="mt-4 p-4 bg-white shadow-lg rounded-lg">
-      <h3 className="text-xl font-semibold">Predicted Bill</h3>
-      {error ? (
-        <p className="text-red-500">{error}</p>
-      ) : predictedBill !== null ? (
-        <p className="text-green-500 font-bold text-lg">₹ {predictedBill.toFixed(2)}</p>
-      ) : (
-        <p>Loading...</p>
-      )}
-    </div>
   </div>  
   );
 }

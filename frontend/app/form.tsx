@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/hooks/use-toast"
+import { Progressp } from "./progress"
 
 const FormSchema = z.object({
   budget: z.coerce.number().min(1, {
@@ -169,6 +170,7 @@ export function InputForm() {
             : "Loading..."}
         </div>
       )}
+      <Progressp/>
     </div>
   )
 }
