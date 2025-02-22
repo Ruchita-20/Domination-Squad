@@ -9,6 +9,10 @@ interface DayOverlapCardProps {
 }
 
 export default function DayOverlapCard({ date, setDate }: DayOverlapCardProps) {
+  // Get today's date
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Remove time for comparison
+
   return (
     <div className="flex justify-center items-center">
       <div className="flex flex-col justify-center items-center w-full max-w-md pl-4 rounded-md">
@@ -19,6 +23,7 @@ export default function DayOverlapCard({ date, setDate }: DayOverlapCardProps) {
           selected={date}
           onSelect={setDate}
           className="rounded-md border w-full"
+          disabled={(day) => day > today} // Disable future dates
         />
       </div>
     </div>

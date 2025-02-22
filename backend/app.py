@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pandas as pd
 import firebase_admin
@@ -9,12 +9,12 @@ from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)  # Allow requests from Next.js
+CORS(app)  # Enable CORS for Next.js frontend
 
 # Firebase setup
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://switchxpert-default-rtdb.firebaseio.com/'
+    'databaseURL': 'https://switchxpert-default-rtdb.firebaseio.com/'  # Replace with your database URL
 })
 
 # Load dataset
@@ -29,32 +29,52 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 model = LinearRegression()
 model.fit(X_train, y_train)
 
-# API Endpoint to get bill prediction
+# API Endpoint to get bill prediction based on selected date
 @app.route('/predict', methods=['GET'])
 def predict_bill():
-    today_date = datetime.today().strftime('%Y-%m-%d')
-    ref = db.reference(f"/usage/{today_date}/")
+    # Get the selected date from the frontend (default to today's date if not provided)
+    selected_date = request.args.get('date', datetime.today().strftime('%Y-%m-%d'))
+
+    print(f"Received request for date: {selected_date}")  # Debugging
+
+    # Fetch appliance usage data for the selected date from Firebase
+    ref = db.reference(f"/usage/{selected_date}/")
     data = ref.get()
 
-    print(f"Fetched data for {today_date}: {data}")  # Debugging print
+    print(f"Fetched data for {selected_date}: {data}")  # Debugging print
 
+    # Check if data is available for the selected date
     if not data:
-        return jsonify({"error": f"No data found for {today_date}"}), 400
+        return jsonify({"error": f"No data found for {selected_date}"}), 400
+
+    # Validate and extract appliance usage values
+    try:
+        fan_usage = float(data.get('Fan', 0))
+        bulb_usage = float(data.get('Bulb', 0))
+        bell_usage = float(data.get('Bell', 0))
+        socket_usage = float(data.get('Socket', 0))
+    except ValueError:
+        return jsonify({"error": "Invalid data format in Firebase"}), 400
 
     # Prepare input data for prediction
     new_input = pd.DataFrame([{
-        'Fan Usage Time (hours)': data.get('Fan', 0),
-        'Bulb Usage Time (hours)': data.get('Bulb', 0),
-        'Bell Usage Time (hours)': data.get('Bell', 0),
-        'Socket Usage Time (hours)': data.get('Socket', 0),
+        'Fan Usage Time (hours)': fan_usage,
+        'Bulb Usage Time (hours)': bulb_usage,
+        'Bell Usage Time (hours)': bell_usage,
+        'Socket Usage Time (hours)': socket_usage,
     }])
 
     print("Input data for prediction:", new_input)  # Debugging print
 
     # Predict bill
     predicted_bill = model.predict(new_input)[0]
+    print(f"Predicted Bill for {selected_date}: {predicted_bill}")  # Debugging print
 
-    return jsonify({"selected_date": today_date, "predicted_bill": predicted_bill})
+    return jsonify({
+        "selected_date": selected_date,
+        "predicted_bill": round(predicted_bill, 2)  # Return rounded bill
+    })
 
+# Run the Flask server
 if __name__ == '__main__':
     app.run(debug=True)
