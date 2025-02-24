@@ -62,7 +62,7 @@ export function ComparisonGraph({ selectedDate }: { selectedDate: string }) {
   }, [selectedDate]);
 
   return (
-    <Card>
+    <Card className="bg-orange-100">
       <CardHeader>
         <CardTitle>Energy Consumption Trend</CardTitle>
       </CardHeader>

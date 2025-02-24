@@ -141,7 +141,7 @@ export function InputForm() {
             name="budget"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Set Your Budget</FormLabel>
+                <FormLabel className="text-lg font-semibold">Set Your Budget</FormLabel>
                 <FormControl>
                 <Input
                  placeholder="Enter amount"
@@ -156,12 +156,12 @@ export function InputForm() {
               </FormItem>
             )}
           />
-          <Button type="submit">Set Limit</Button>
+          <Button className="bg-orange-200 text-black font-semibold hover:bg-orange-300" type="submit">Set Limit</Button>
         </form>
       </Form>
 
       {currentBudget !== null && (
-        <div className="text-lg font-semibold leading-[2]">
+        <div className="text-lg bg-orange font-semibold leading-[2]">
           Current Budget: ₹{currentBudget.toLocaleString("en-IN")}
           <br />
           Predicted Monthly Bill: ₹

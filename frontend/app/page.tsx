@@ -47,23 +47,23 @@ export default function Home() {
   }, [selectedDate]); // Runs when selectedDate changes
 
   return (
-    <div className="flex flex-col h-screen p-10 gap-2">
+    <div className="flex flex-col h-screen   p-10 gap-2">
     <div className="flex items-center gap-4 pb-2">
       {/* Circle Logo */}
-      <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg">
+      <div className="w-16 h-16 rounded-full  overflow-hidden shadow-lg">
         <img src="/1.png" alt="SwitchXpert Logo" className="w-full h-full object-cover" />
       </div>
-      <p className="text-3xl font-bold">SwitchXpert</p>
+      <p className="text-5xl text-orange-600 font-bold">SwitchXpert </p>
     </div>
   
-    <div className="flex flex-wrap gap-6">
-      <div className="w-20 flex-1 p-6 rounded-lg shadow-lg">
+    <div className="flex flex-wrap gap-6 ">
+      <div className="w-20 flex-1 p-6 rounded-lg bg-orange-100 shadow-lg ">
         <InputForm />
       </div>
-      <div className="w-72 flex rounded-lg shadow-lg">
+      <div className="w-72 flex rounded-lg bg-orange-100 shadow-lg">
         <DayOverlapCard date={selectedDate} setDate={setSelectedDate} />
       </div>
-      <div className="w-32 flex-1">
+      <div className="w-32  flex-1">
         <Redical selectedDate={formatDate(selectedDate)} />
       </div>
       <div className="w-32 flex-1">
@@ -71,7 +71,7 @@ export default function Home() {
       </div>
     </div>
   
-    <div className="flex gap-4 mt-2">
+    <div className="flex gap-4 mt-2 mb-10">
 
       <div className="w-2/3 flex flex-col gap-4">
         <ComparisonGraph selectedDate={formatDate(selectedDate)} />

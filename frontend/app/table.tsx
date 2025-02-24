@@ -52,7 +52,7 @@ export function TableDemo({ selectedDate }: { selectedDate: string }) {
   });
 
   return (
-    <div className="rounded-lg shadow-lg">
+    <div className="rounded-lg shadow-lg bg-orange-100">
       <Table>
         <TableCaption>
           <div className="flex items-center justify-center">

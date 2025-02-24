@@ -82,7 +82,7 @@ export function Redical({ selectedDate }: RedicalProps) {
   if (error) return <div>{error}</div>;
 
   return (
-    <Card className="flex flex-col rounded-lg shadow-lg">
+    <Card className="flex bg-orange-100 flex-col rounded-lg shadow-lg">
       <CardHeader className="items-center pb-0">
         <CardTitle>Appliance Usage</CardTitle>
         <CardDescription>Usage Breakdown for {selectedDate}</CardDescription>

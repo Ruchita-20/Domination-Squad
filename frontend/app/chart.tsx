@@ -46,7 +46,7 @@ export function Component() {
   }, []);
 
   return (
-    <ChartContainer config={chartConfig} className="min-h-[180px] w-full rounded-lg shadow-lg mb-3">
+    <ChartContainer config={chartConfig} className="min-h-[180px] w-full rounded-lg shadow-lg mb-3 bg-orange-100">
       <BarChart accessibilityLayer data={chartData}>
         <CartesianGrid vertical={false} />
         <XAxis

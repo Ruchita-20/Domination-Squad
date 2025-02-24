@@ -44,7 +44,7 @@ export function Days() {
   const totalDaysInMonth = totalDays
 
   return (
-    <Card className="flex flex-col rounded-lg shadow-lg">
+    <Card className="flex flex-col bg-orange-100 rounded-lg shadow-lg">
       <CardHeader className="items-center pb-0">
         <CardTitle>Monthly Days Overview</CardTitle>
         <CardDescription>
